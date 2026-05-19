@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ru">
+   <head>
+      <meta charset="UTF-8" />
+      <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Sultan Gril House — Домашняя столовая</title>
+      <meta name="description" content="Домашняя кухня. Вкусная еда с доставкой. Бизнес-ланч от 120 ₽." />
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+      <link
+         href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@400;500;600;700&display=swap"
+         rel="stylesheet" />
+      <style>
+         *,
+         *::before,
+         *::after {
+            box-sizing: border-box;
+         }
+         body {
+            margin: 0;
+            padding: 0;
+            background: #f4f1ec;
+         }
+         @keyframes toastIn {
+            from {
+               opacity: 0;
+               transform: translateY(12px) scale(0.95);
+            }
+            to {
+               opacity: 1;
+               transform: translateY(0) scale(1);
+            }
+         }
+         @keyframes fadeIn {
+            from {
+               opacity: 0;
+            }
+            to {
+               opacity: 1;
+            }
+         }
+         input::placeholder,
+         textarea::placeholder {
+            color: rgba(90, 85, 80, 0.45);
+         }
+         ::-webkit-scrollbar {
+            width: 6px;
+         }
+         ::-webkit-scrollbar-track {
+            background: transparent;
+         }
+         ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 3px;
+         }
+      </style>
+   </head>
+   <body>
+      <div id="root"></div>
+      <script type="module" src="/src/main.jsx"></script>
+   </body>
+</html>
