@@ -27,7 +27,9 @@ export const ProductCard = ({item, onAdd, onOpen}) => {
             e.currentTarget.style.transform = "none";
             e.currentTarget.style.boxShadow = "0 2px 12px rgba(0,0,0,0.06)";
          }}>
-         <div style={{...pcS.imgWrap, background: cat.color || "#F0EDE8"}}>
+         <div
+            className="max-md:!h-[160px]"
+            style={{...pcS.imgWrap, background: cat.color || "#F0EDE8"}}>
             {!imgErr && item.photo ? (
                <img src={item.photo} alt={item.name} style={pcS.img} onError={() => setImgErr(true)} />
             ) : (
@@ -160,8 +162,12 @@ export const ProductModal = ({item, onClose, onAdd}) => {
    };
 
    return (
-      <div style={mdS.overlay} onClick={onClose}>
-         <div style={mdS.modal} onClick={e => e.stopPropagation()}>
+      <div
+         className="max-md:!p-3 max-md:!items-end"
+         style={mdS.overlay} onClick={onClose}>
+         <div
+            className="max-md:!max-w-full max-md:!max-h-[92vh] max-md:!rounded-t-[20px] max-md:!rounded-b-none"
+            style={mdS.modal} onClick={e => e.stopPropagation()}>
             <button
                style={mdS.closeBtn}
                onClick={onClose}
@@ -170,7 +176,9 @@ export const ProductModal = ({item, onClose, onAdd}) => {
                <CloseIcon size={16} />
             </button>
 
-            <div style={mdS.imgArea}>
+            <div
+               className="max-md:!h-[200px]"
+               style={mdS.imgArea}>
                {!imgErr && item.photo ? (
                   <img src={item.photo} alt={item.name} style={mdS.img} onError={() => setImgErr(true)} />
                ) : (
@@ -182,8 +190,10 @@ export const ProductModal = ({item, onClose, onAdd}) => {
                {item.badge && <span style={pcS.badge}>{item.badge}</span>}
             </div>
 
-            <div style={mdS.content}>
-               <div style={{display: "flex", alignItems: "center", gap: 8, marginBottom: 4}}>
+            <div
+               className="max-md:!p-5"
+               style={mdS.content}>
+               <div style={{display: "flex", alignItems: "center", gap: 8, marginBottom: 4, flexWrap: "wrap"}}>
                   <span style={pcS.catLabel}>{cat.label}</span>
                   <span style={{color: "#D0C8C0", fontSize: 11}}>·</span>
                   <div style={{display: "flex", alignItems: "center", gap: 4}}>
@@ -197,8 +207,8 @@ export const ProductModal = ({item, onClose, onAdd}) => {
                   </div>
                </div>
 
-               <h2 style={mdS.title}>{item.name}</h2>
-               <p style={mdS.desc}>{item.desc}</p>
+               <h2 className="max-md:!text-[22px]" style={mdS.title}>{item.name}</h2>
+               <p className="max-md:!text-[13px]" style={mdS.desc}>{item.desc}</p>
 
                <div style={mdS.infoRow}>
                   {[
@@ -213,7 +223,9 @@ export const ProductModal = ({item, onClose, onAdd}) => {
                   ))}
                </div>
 
-               <div style={mdS.actions}>
+               <div
+                  className="max-md:!gap-2"
+                  style={mdS.actions}>
                   <div style={mdS.qtyRow}>
                      <button style={mdS.qtyBtn} onClick={() => setQty(q => Math.max(1, q - 1))}>
                         <MinusIcon size={14} />
@@ -224,6 +236,7 @@ export const ProductModal = ({item, onClose, onAdd}) => {
                      </button>
                   </div>
                   <button
+                     className="max-md:!text-[14px] max-md:!py-3"
                      style={{...mdS.addBtn, background: added ? "#1E3328" : "#C4673A"}}
                      onClick={handleAdd}
                      onMouseEnter={e => {

@@ -34,7 +34,7 @@ export default function App() {
          }
          return [...prev, {...item, qty: addQty}];
       });
-      showToast(item.name); // один раз, независимо от qty
+      showToast(item.name);
    };
 
    const updateQty = (id, qty) => {

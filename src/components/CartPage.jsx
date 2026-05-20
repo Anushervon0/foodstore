@@ -2,6 +2,23 @@ import React from 'react';
 import { MapPinIcon, TrashIcon, PlusIcon, MinusIcon, CheckIcon, FoodIllustration } from './icons.jsx';
 import { CATEGORIES } from '../data/menu.js';
 import { plural } from './CatalogPage.jsx';
+import { createOrder } from '../api.js';
+
+// Маска телефона: из введённых символов оставляет цифры и собирает +7 (XXX) XXX-XX-XX.
+const formatPhone = (value) => {
+  let digits = value.replace(/\D/g, '');
+  if (digits.startsWith('8')) digits = '7' + digits.slice(1);
+  if (!digits.startsWith('7')) digits = '7' + digits;
+  digits = digits.slice(0, 11); // 7 + 10 цифр
+  const d = digits.slice(1);    // 10 цифр номера
+  let out = '+7';
+  if (d.length > 0) out += ' (' + d.slice(0, 3);
+  if (d.length >= 3) out += ')';
+  if (d.length > 3) out += ' ' + d.slice(3, 6);
+  if (d.length > 6) out += '-' + d.slice(6, 8);
+  if (d.length > 8) out += '-' + d.slice(8, 10);
+  return out;
+};
 
 const FormField = ({ label, error, children }) => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
@@ -11,18 +28,22 @@ const FormField = ({ label, error, children }) => (
   </div>
 );
 
-const OrderSuccessModal = ({ form, total, onClose }) => (
-  <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,22,18,0.6)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 300, padding: 24 }}>
-    <div style={{ background: 'white', borderRadius: 24, padding: '44px 40px', maxWidth: 440, width: '100%', textAlign: 'center', boxShadow: '0 32px 80px rgba(0,0,0,0.3)' }}>
+const OrderSuccessModal = ({ form, total, orderId, onClose }) => (
+  <div
+    className="max-md:!p-4"
+    style={{ position: 'fixed', inset: 0, background: 'rgba(15,22,18,0.6)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 300, padding: 24 }}>
+    <div
+      className="max-md:!p-6 max-md:!rounded-[20px]"
+      style={{ background: 'white', borderRadius: 24, padding: '44px 40px', maxWidth: 440, width: '100%', textAlign: 'center', boxShadow: '0 32px 80px rgba(0,0,0,0.3)' }}>
       <div style={{ width: 72, height: 72, background: '#E8F4E8', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
         <CheckIcon size={32} />
       </div>
-      <h2 style={{ fontFamily: "'Cormorant Garamond',serif", color: '#1A2B1E', fontSize: 28, margin: '0 0 10px', fontWeight: 700 }}>Заказ принят!</h2>
+      <h2 className="max-md:!text-[24px]" style={{ fontFamily: "'Cormorant Garamond',serif", color: '#1A2B1E', fontSize: 28, margin: '0 0 10px', fontWeight: 700 }}>Заказ принят!</h2>
       <p style={{ color: '#7A756E', fontFamily: "'Outfit',sans-serif", fontSize: 14, lineHeight: 1.65, margin: '0 0 8px' }}>
-        {form.name}, ваш заказ на сумму <strong>{total} ₽</strong> принят.
+        {form.name}, ваш заказ{orderId ? ` №${orderId}` : ''} на сумму <strong>{total} ₽</strong> принят.
       </p>
       <p style={{ color: '#B0A898', fontFamily: "'Outfit',sans-serif", fontSize: 13, margin: '0 0 28px' }}>
-        {form.delivery === 'delivery' ? 'Курьер свяжется с вами в течение 5 минут.' : 'Заказ будет готов через 20–30 минут.'}
+        {form.delivery === 'delivery' ? 'Курьер свяжется с вами в течение 5 минут. Оплата при получении.' : 'Заказ будет готов через 20–30 минут. Оплата при получении.'}
       </p>
       <button style={{ background: '#1E3328', color: 'white', border: 'none', borderRadius: 12, padding: '14px 32px', fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: "'Outfit',sans-serif" }}
         onClick={onClose}
@@ -35,23 +56,40 @@ const CartPage = ({ cart, onUpdate, onRemove, setPage }) => {
   const [form, setForm] = React.useState({ name: '', phone: '', address: '', comment: '', delivery: 'pickup' });
   const [errors, setErrors] = React.useState({});
   const [showSuccess, setShowSuccess] = React.useState(false);
+  const [submitting, setSubmitting] = React.useState(false);
+  const [submitError, setSubmitError] = React.useState(null);
+  const [orderId, setOrderId] = React.useState(null);
 
   const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
   const itemCount = cart.reduce((s, i) => s + i.qty, 0);
+  const shipping = form.delivery === 'delivery' && total < 500 ? 150 : 0;
+  const grandTotal = total + shipping;
 
   const validate = () => {
     const e = {};
     if (!form.name.trim()) e.name = 'Введите имя';
-    if (!form.phone.trim() || form.phone.replace(/\D/g, '').length < 10) e.phone = 'Укажите корректный номер';
+    if (!form.phone.trim() || form.phone.replace(/\D/g, '').length < 11) e.phone = 'Укажите корректный номер';
     if (form.delivery === 'delivery' && !form.address.trim()) e.address = 'Укажите адрес доставки';
     return e;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submitting) return;
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
-    setShowSuccess(true);
+    setErrors({});
+    setSubmitError(null);
+    setSubmitting(true);
+    try {
+      const order = await createOrder(cart, form);
+      setOrderId(order && order.id ? order.id : null);
+      setShowSuccess(true);
+    } catch (err) {
+      setSubmitError(err.message || 'Не удалось оформить заказ. Попробуйте ещё раз.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleSuccessClose = () => {
@@ -72,48 +110,64 @@ const CartPage = ({ cart, onUpdate, onRemove, setPage }) => {
         <p style={{ color: '#9A8C7E', fontFamily: "'Outfit',sans-serif", fontSize: 14, margin: 0 }}>Добавьте блюда из каталога</p>
         <button style={crS.primaryBtn} onClick={() => setPage('catalog')}>Перейти в каталог</button>
       </div>
-      {showSuccess && <OrderSuccessModal form={form} total={total} onClose={handleSuccessClose} />}
+      {showSuccess && <OrderSuccessModal form={form} total={grandTotal} orderId={orderId} onClose={handleSuccessClose} />}
     </main>
   );
 
   return (
     <main style={{ background: '#F4F1EC', minHeight: '100vh', paddingBottom: 80 }}>
-      {showSuccess && <OrderSuccessModal form={form} total={total} onClose={handleSuccessClose} />}
+      {showSuccess && <OrderSuccessModal form={form} total={grandTotal} orderId={orderId} onClose={handleSuccessClose} />}
 
-      <div style={crS.hero}>
-        <div style={crS.container}>
+      <div className="max-md:!py-8" style={crS.hero}>
+        <div className="max-md:!px-4" style={crS.container}>
           <span style={crS.heroLabel}>Оформление</span>
-          <h1 style={crS.heroTitle}>Корзина</h1>
+          <h1 className="max-md:!text-[28px]" style={crS.heroTitle}>Корзина</h1>
           <p style={crS.heroSub}>{itemCount} {plural(itemCount, ['позиция', 'позиции', 'позиций'])} · {total} ₽</p>
         </div>
       </div>
 
-      <div style={crS.container}>
-        <div style={crS.layout}>
+      <div className="max-md:!px-4" style={crS.container}>
+        <div
+          className="max-md:!grid-cols-1 max-md:!gap-6 max-md:!pt-6"
+          style={crS.layout}>
           <div>
             <h2 style={crS.colTitle}>Ваш заказ</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {cart.map(item => {
                 const cat = CATEGORIES.find(c => c.id === item.cat) || {};
                 return (
-                  <div key={item.id} style={crS.cartItem}>
-                    <div style={{ ...crS.cartThumb, background: cat.color || '#F0EDE8' }}>
+                  <div
+                    key={item.id}
+                    className="max-md:!flex-wrap max-md:!gap-x-3 max-md:!gap-y-2 max-md:!p-3"
+                    style={crS.cartItem}>
+                    <div
+                      className="max-md:!w-[52px] max-md:!h-[52px]"
+                      style={{ ...crS.cartThumb, background: cat.color || '#F0EDE8' }}>
                       {item.photo
                         ? <img src={item.photo} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 12 }} onError={e => { e.target.style.display = 'none'; }} />
                         : <FoodIllustration cat={item.cat} size={48} />
                       }
                     </div>
-                    <div style={crS.cartInfo}>
+                    <div
+                      className="max-md:!min-w-0 max-md:!flex-[1_1_calc(100%-72px)]"
+                      style={crS.cartInfo}>
                       <div style={crS.cartName}>{item.name}</div>
                       <div style={crS.cartMeta}>{item.weight} · {item.kcal} ккал</div>
                     </div>
-                    <div style={crS.qtyRow}>
+                    <div
+                      className="max-md:!order-3"
+                      style={crS.qtyRow}>
                       <button style={crS.qtyBtn} onClick={() => onUpdate(item.id, item.qty - 1)}><MinusIcon size={13} /></button>
                       <span style={crS.qtyNum}>{item.qty}</span>
                       <button style={crS.qtyBtn} onClick={() => onUpdate(item.id, item.qty + 1)}><PlusIcon size={13} /></button>
                     </div>
-                    <div style={crS.cartPrice}>{item.price * item.qty} ₽</div>
-                    <button style={crS.removeBtn} onClick={() => onRemove(item.id)}
+                    <div
+                      className="max-md:!order-4 max-md:!ml-auto"
+                      style={crS.cartPrice}>{item.price * item.qty} ₽</div>
+                    <button
+                      className="max-md:!order-5"
+                      style={crS.removeBtn}
+                      onClick={() => onRemove(item.id)}
                       onMouseEnter={e => e.currentTarget.style.color = '#C04030'}
                       onMouseLeave={e => e.currentTarget.style.color = '#C0B8B0'}
                     ><TrashIcon /></button>
@@ -124,7 +178,9 @@ const CartPage = ({ cart, onUpdate, onRemove, setPage }) => {
           </div>
 
           <div style={crS.formCol}>
-            <div style={crS.formCard}>
+            <div
+              className="max-md:!static max-md:!p-5"
+              style={crS.formCard}>
               <h2 style={crS.colTitle}>Оформление заказа</h2>
               <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 <div style={crS.toggle}>
@@ -136,7 +192,9 @@ const CartPage = ({ cart, onUpdate, onRemove, setPage }) => {
                   ))}
                 </div>
                 {form.delivery === 'pickup' && (
-                  <div style={crS.pickupInfo}>
+                  <div
+                    className="max-md:!text-[12px]"
+                    style={crS.pickupInfo}>
                     <MapPinIcon size={14} /> <span>ул. Германа Титова, 6 · Пн–Пт 8:00–20:00</span>
                   </div>
                 )}
@@ -150,8 +208,9 @@ const CartPage = ({ cart, onUpdate, onRemove, setPage }) => {
                 </FormField>
                 <FormField label="Телефон *" error={errors.phone}>
                   <input style={{ ...crS.input, ...(errors.phone ? crS.inputErr : {}) }}
+                    type="tel" inputMode="tel"
                     placeholder="+7 (___) ___-__-__" value={form.phone}
-                    onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+                    onChange={e => setForm(f => ({ ...f, phone: formatPhone(e.target.value) }))}
                     onFocus={e => e.target.style.borderColor = '#C4673A'}
                     onBlur={e => e.target.style.borderColor = errors.phone ? '#D04020' : '#E5E0D8'}
                   />
@@ -184,14 +243,20 @@ const CartPage = ({ cart, onUpdate, onRemove, setPage }) => {
                   )}
                   <div style={crS.summaryTotal}>
                     <span>Итого</span>
-                    <span>{total + (form.delivery === 'delivery' && total < 500 ? 150 : 0)} ₽</span>
+                    <span>{grandTotal} ₽</span>
                   </div>
                 </div>
-                <button type="submit" style={{ ...crS.primaryBtn, width: '100%' }}
-                  onMouseEnter={e => e.currentTarget.style.background = '#A8552E'}
-                  onMouseLeave={e => e.currentTarget.style.background = '#C4673A'}
-                >Оформить заказ</button>
-                <p style={crS.hint}>Нажимая кнопку, вы соглашаетесь с условиями доставки и обработкой персональных данных</p>
+                {submitError && (
+                  <div style={{ fontSize: 12, color: '#D04020', fontFamily: "'Outfit',sans-serif", background: '#FBEAE5', borderRadius: 10, padding: '10px 14px' }}>
+                    {submitError}
+                  </div>
+                )}
+                <button type="submit" disabled={submitting}
+                  style={{ ...crS.primaryBtn, width: '100%', ...(submitting ? { background: '#B0A898', cursor: 'default' } : {}) }}
+                  onMouseEnter={e => { if (!submitting) e.currentTarget.style.background = '#A8552E'; }}
+                  onMouseLeave={e => { if (!submitting) e.currentTarget.style.background = '#C4673A'; }}
+                >{submitting ? 'Оформляем…' : 'Оформить заказ'}</button>
+                <p style={crS.hint}>Нажимая кнопку, вы соглашаетесь с условиями доставки и обработкой персональных данных. Оплата при получении.</p>
               </form>
             </div>
           </div>

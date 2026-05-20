@@ -3,9 +3,11 @@ import {LogoMark, MapPinIcon, ClockIcon, PhoneIcon} from "./icons.jsx";
 import {CATEGORIES} from "../data/menu.js";
 
 export const Footer = ({setPage}) => (
-   <footer style={ftS.footer}>
-      <div style={ftS.container}>
-         <div style={ftS.grid}>
+   <footer style={ftS.footer} className="max-md:!pt-10">
+      <div style={ftS.container} className="max-md:!px-4">
+         <div
+            className="max-md:!grid-cols-1 max-md:!gap-8 max-md:!pb-8"
+            style={ftS.grid}>
             <div>
                <div style={ftS.brand} onClick={() => setPage("home")}>
                   <LogoMark />
@@ -82,7 +84,9 @@ export const Footer = ({setPage}) => (
             </div>
          </div>
 
-         <div style={ftS.bottom}>
+         <div
+            className="max-md:!flex-col max-md:!items-start max-md:!gap-2 max-md:!text-[11px]"
+            style={ftS.bottom}>
             <span>© 2026 СИТНЫЙ. Все права защищены.</span>
             <span>Сделано с ❤️ для наших гостей</span>
          </div>

@@ -4,6 +4,7 @@ import {PhoneIcon, CartIcon, MapPinIcon, CheckIcon, ChevronLeft, ChevronRight, L
 // ===== TOAST =====
 export const ToastContainer = ({toasts}) => (
    <div
+      className="max-md:!bottom-[16px] max-md:!w-[calc(100%-24px)] max-md:!px-3"
       style={{
          position: "fixed",
          bottom: 28,
@@ -19,6 +20,7 @@ export const ToastContainer = ({toasts}) => (
       {toasts.map(t => (
          <div
             key={t.id}
+            className="max-md:!text-[13px] max-md:!whitespace-normal max-md:!text-center"
             style={{
                background: "#1E3328",
                color: "white",
@@ -57,6 +59,7 @@ export const ToastContainer = ({toasts}) => (
 
 // ===== HEADER =====
 export const Header = ({page, setPage, cartCount, cartTotal}) => {
+   const [menuOpen, setMenuOpen] = React.useState(false);
    const navItems = [
       {id: "home", label: "Главная"},
       {id: "catalog", label: "Каталог"},
@@ -64,21 +67,30 @@ export const Header = ({page, setPage, cartCount, cartTotal}) => {
       {id: "delivery", label: "Доставка и оплата"},
    ];
 
+   const go = id => {
+      setPage(id);
+      setMenuOpen(false);
+   };
+
    return (
       <header style={hdrS.header}>
-         <div style={hdrS.inner}>
-            <div style={hdrS.logo} onClick={() => setPage("home")}>
+         <div
+            className="max-md:!px-4 max-md:!gap-3 max-md:!h-[60px]"
+            style={hdrS.inner}>
+            <div style={hdrS.logo} onClick={() => go("home")}>
                <LogoMark />
                <div>
-                  <div style={hdrS.logoName}>SULTAN</div>
+                  <div style={hdrS.logoName} className="max-md:!text-[17px] max-md:!tracking-[2px]">SULTAN</div>
                   <div style={hdrS.logoSub}>GRIL HOUSE</div>
                </div>
             </div>
-            <nav style={hdrS.nav}>
+
+            {/* Desktop nav */}
+            <nav style={hdrS.nav} className="max-md:!hidden">
                {navItems.map(({id, label}) => (
                   <button
                      key={id}
-                     onClick={() => setPage(id)}
+                     onClick={() => go(id)}
                      style={{...hdrS.navBtn, ...(page === id ? hdrS.navActive : {})}}
                      onMouseEnter={e => {
                         if (page !== id) e.currentTarget.style.color = "white";
@@ -90,22 +102,53 @@ export const Header = ({page, setPage, cartCount, cartTotal}) => {
                   </button>
                ))}
             </nav>
-            <div style={hdrS.right}>
-               <a href="tel:+78001234567" style={hdrS.phone}>
+
+            <div style={hdrS.right} className="max-md:!gap-2 max-md:!ml-auto">
+               <a href="tel:+78001234567" style={hdrS.phone} className="max-md:!hidden">
                   <PhoneIcon size={15} />
                   <span>8 800 123-45-67</span>
                </a>
                <button
                   style={hdrS.cartBtn}
-                  onClick={() => setPage("cart")}
+                  className="max-md:!px-3 max-md:!py-2 max-md:!text-[13px] max-md:!gap-1.5"
+                  onClick={() => go("cart")}
                   onMouseEnter={e => (e.currentTarget.style.background = "#A8552E")}
                   onMouseLeave={e => (e.currentTarget.style.background = "#C4673A")}>
                   <CartIcon count={cartCount} />
-                  <span>Корзина</span>
-                  {cartTotal > 0 && <span style={hdrS.cartTotal}>{cartTotal} ₽</span>}
+                  <span className="max-md:!hidden">Корзина</span>
+                  {cartTotal > 0 && <span style={hdrS.cartTotal} className="max-md:!text-[11px] max-md:!px-1.5">{cartTotal} ₽</span>}
+               </button>
+               {/* Burger */}
+               <button
+                  onClick={() => setMenuOpen(o => !o)}
+                  aria-label="Меню"
+                  className="hidden max-md:!inline-flex max-md:!items-center max-md:!justify-center max-md:!w-10 max-md:!h-10 max-md:!rounded-[10px] max-md:!bg-white/10 max-md:!border-none max-md:!cursor-pointer max-md:!text-white">
+                  {menuOpen ? (
+                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  ) : (
+                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                  )}
                </button>
             </div>
          </div>
+
+         {/* Mobile dropdown menu */}
+         {menuOpen && (
+            <div className="hidden max-md:!flex max-md:!flex-col max-md:!gap-1 max-md:!px-4 max-md:!pb-4 max-md:!pt-1 max-md:!bg-[#1E3328] max-md:!border-t max-md:!border-white/10">
+               {navItems.map(({id, label}) => (
+                  <button
+                     key={id}
+                     onClick={() => go(id)}
+                     className={`max-md:!text-left max-md:!px-3 max-md:!py-3 max-md:!rounded-[10px] max-md:!text-[15px] max-md:!font-medium max-md:!border-none max-md:!cursor-pointer max-md:!transition-colors max-md:!font-[Outfit] ${page === id ? 'max-md:!bg-white/10 max-md:!text-white' : 'max-md:!bg-transparent max-md:!text-white/65'}`}>
+                     {label}
+                  </button>
+               ))}
+               <a href="tel:+78001234567" className="max-md:!flex max-md:!items-center max-md:!gap-2 max-md:!px-3 max-md:!py-3 max-md:!mt-1 max-md:!text-white/60 max-md:!no-underline max-md:!text-[14px] max-md:!font-[Outfit]">
+                  <PhoneIcon size={15} />
+                  <span>8 800 123-45-67</span>
+               </a>
+            </div>
+         )}
       </header>
    );
 };
@@ -223,12 +266,20 @@ export const HeroSlider = ({onCatalog}) => {
    const s = slides[cur];
 
    return (
-      <div style={{...slS.wrap, background: s.bg}}>
+      <div
+         className="max-md:!min-h-[auto]"
+         style={{...slS.wrap, background: s.bg}}>
          <div style={{...slS.content, opacity: fading ? 0 : 1, transition: "opacity .35s ease"}}>
-            <div style={slS.inner}>
-               <div style={slS.textCol}>
-                  <span style={{...slS.tag, background: s.accent}}>{s.tag}</span>
-                  <h1 style={{...slS.title, color: s.textCol}}>
+            <div
+               className="max-md:!flex-col max-md:!gap-6 max-md:!px-4 max-md:!py-10 max-md:!min-h-[auto]"
+               style={slS.inner}>
+               <div style={slS.textCol} className="max-md:!text-center max-md:!w-full">
+                  <span
+                     className="max-md:!text-[10px] max-md:!mb-3 max-md:!px-2.5 max-md:!py-1"
+                     style={{...slS.tag, background: s.accent}}>{s.tag}</span>
+                  <h1
+                     className="max-md:!text-[28px] max-md:!leading-[1.2] max-md:!mb-3"
+                     style={{...slS.title, color: s.textCol}}>
                      {s.title.split("\n").map((l, i) => (
                         <span key={i}>
                            {l}
@@ -236,8 +287,9 @@ export const HeroSlider = ({onCatalog}) => {
                         </span>
                      ))}
                   </h1>
-                  <p style={{...slS.sub, color: s.subCol}}>{s.sub}</p>
+                  <p className="max-md:!text-[14px] max-md:!mb-6" style={{...slS.sub, color: s.subCol}}>{s.sub}</p>
                   <button
+                     className="max-md:!px-7 max-md:!py-3.5 max-md:!text-[14px]"
                      style={{...slS.cta, background: s.accent}}
                      onMouseEnter={e => {
                         e.currentTarget.style.transform = "translateY(-2px)";
@@ -251,8 +303,8 @@ export const HeroSlider = ({onCatalog}) => {
                      {s.cta}
                   </button>
                </div>
-               <div style={slS.photoCol}>
-                  <div style={slS.photoWrap}>
+               <div style={slS.photoCol} className="max-md:!w-full max-md:!justify-center">
+                  <div className="max-md:!h-[220px] max-md:!max-w-full" style={slS.photoWrap}>
                      <img
                         src={s.photo}
                         alt=""
@@ -266,10 +318,16 @@ export const HeroSlider = ({onCatalog}) => {
                </div>
             </div>
          </div>
-         <button style={{...slS.arrow, left: 20}} onClick={prev}>
+         <button
+            className="max-md:!hidden"
+            style={{...slS.arrow, left: 20}}
+            onClick={prev}>
             <ChevronLeft />
          </button>
-         <button style={{...slS.arrow, right: 20}} onClick={next}>
+         <button
+            className="max-md:!hidden"
+            style={{...slS.arrow, right: 20}}
+            onClick={next}>
             <ChevronRight />
          </button>
          <div style={slS.dots}>

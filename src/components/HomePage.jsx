@@ -2,14 +2,40 @@ import React from 'react';
 import { HeroSlider } from './Header.jsx';
 import { ProductCard } from './ProductCard.jsx';
 import { ArrowRight, IconNatural, IconSpeed, IconPrice, IconFresh, FoodIllustration } from './icons.jsx';
-import { CATEGORIES, MENU } from '../data/menu.js';
+import { CATEGORIES as CATEGORIES_FALLBACK } from '../data/menu.js';
+import { fetchProducts, fetchCategories } from '../api.js';
 
 const SectionLabel = ({ children }) => (
   <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2.5, textTransform: 'uppercase', color: '#C4673A', fontFamily: "'Outfit',sans-serif", marginBottom: 10 }}>{children}</div>
 );
 
 const HomePage = ({ onCatalog, onAdd, onOpen, setPage }) => {
-  const popular = MENU.filter(m => m.popular).slice(0, 4);
+  const [menu, setMenu] = React.useState([]);
+  const [categories, setCategories] = React.useState(CATEGORIES_FALLBACK);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState(null);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        setLoading(true);
+        const [products, cats] = await Promise.all([fetchProducts(), fetchCategories()]);
+        if (cancelled) return;
+        setMenu(products);
+        if (cats && cats.length) setCategories(cats);
+        setError(null);
+      } catch (e) {
+        if (cancelled) return;
+        setError(e.message || 'Не удалось загрузить меню');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const popular = menu.filter(m => m.popular).slice(0, 4);
 
   return (
     <main style={{ background: '#F4F1EC' }}>
@@ -24,7 +50,7 @@ const HomePage = ({ onCatalog, onAdd, onOpen, setPage }) => {
             <button style={hpS.linkBtn} onClick={onCatalog}>Весь каталог <ArrowRight size={15} /></button>
           </div>
           <div style={hpS.catGrid}>
-            {CATEGORIES.map(cat => (
+            {categories.map(cat => (
               <div key={cat.id} style={{ ...hpS.catCard, background: cat.color }}
                 onClick={onCatalog}
                 onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-5px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(0,0,0,0.1)'; }}
@@ -46,11 +72,17 @@ const HomePage = ({ onCatalog, onAdd, onOpen, setPage }) => {
             <h2 style={hpS.sectionTitle}>Популярные блюда</h2>
             <button style={hpS.linkBtn} onClick={onCatalog}>Смотреть все <ArrowRight size={15} /></button>
           </div>
-          <div style={hpS.dishGrid}>
-            {popular.map(item => (
-              <ProductCard key={item.id} item={item} onAdd={onAdd} onOpen={onOpen} />
-            ))}
-          </div>
+          {error ? (
+            <p style={{ color: '#9A8C7E', fontFamily: "'Outfit',sans-serif", fontSize: 14 }}>Не удалось загрузить блюда: {error}</p>
+          ) : loading ? (
+            <p style={{ color: '#9A8C7E', fontFamily: "'Outfit',sans-serif", fontSize: 14 }}>Загрузка меню…</p>
+          ) : (
+            <div style={hpS.dishGrid}>
+              {popular.map(item => (
+                <ProductCard key={item.id} item={item} onAdd={onAdd} onOpen={onOpen} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
