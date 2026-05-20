@@ -21,27 +21,31 @@ const PromoPage = ({ onCatalog }) => {
   return (
     <main style={{ background: '#F4F1EC', minHeight: '100vh', paddingBottom: 80 }}>
       {/* Hero */}
-      <div style={prS.hero}>
+      <div className="max-md:!py-8" style={prS.hero}>
         <div style={prS.heroPatterns} />
-        <div style={prS.container}>
+        <div className="max-md:!px-4" style={prS.container}>
           <span style={prS.heroLabel}>Специальные предложения</span>
-          <h1 style={prS.heroTitle}>Акции и скидки</h1>
+          <h1 className="max-md:!text-[28px]" style={prS.heroTitle}>Акции и скидки</h1>
           <p style={prS.heroSub}>Выгодные предложения для наших гостей — каждый день</p>
-          <div style={prS.heroStats}>
+          <div
+            className="max-md:!gap-5"
+            style={prS.heroStats}>
             {[['4', 'активных акции'], ['−15%', 'на салаты в мае'], ['290 ₽', 'бизнес-ланч']].map(([n, l]) => (
               <div key={l} style={prS.heroStat}>
-                <span style={prS.heroStatNum}>{n}</span>
-                <span style={prS.heroStatLbl}>{l}</span>
+                <span className="max-md:!text-[20px]" style={prS.heroStatNum}>{n}</span>
+                <span className="max-md:!text-[11px]" style={prS.heroStatLbl}>{l}</span>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      <div style={prS.container}>
+      <div className="max-md:!px-4" style={prS.container}>
         {/* Featured */}
-        <div style={{ paddingTop: 44 }}>
-          <div style={prS.featuredWrap}>
+        <div style={{ paddingTop: 44 }} className="max-md:!pt-7">
+          <div
+            className="max-md:!grid-cols-1 max-md:!gap-3"
+            style={prS.featuredWrap}>
             <FeaturedPromo promo={promoList[0]} onCatalog={onCatalog} />
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               {promoList.slice(1, 3).map(p => <PromoCard key={p.id} promo={p} onCatalog={onCatalog} />)}
@@ -55,13 +59,21 @@ const PromoPage = ({ onCatalog }) => {
         </div>
 
         {/* Time-of-day */}
-        <div style={{ marginTop: 52 }}>
+        <div
+          className="max-md:!mt-9"
+          style={{ marginTop: 52 }}>
           <span style={prS.sectionLabel}>По времени суток</span>
-          <h2 style={{ ...prS.sectionTitle, marginBottom: 28 }}>Специальные меню</h2>
-          <div style={prS.timeGrid}>
+          <h2
+            className="max-md:!mb-5 max-md:!text-[24px]"
+            style={{ ...prS.sectionTitle, marginBottom: 28 }}>Специальные меню</h2>
+          <div
+            className="max-md:!grid-cols-1 max-md:!gap-4"
+            style={prS.timeGrid}>
             {timeOfDay.map(t => (
               <div key={t.tag} style={{ ...prS.timeCard, background: t.bg }}>
-                <div style={prS.timeImgWrap}>
+                <div
+                  className="max-md:!h-[140px]"
+                  style={prS.timeImgWrap}>
                   <img src={t.photo} alt={t.title} style={prS.timeImg} onError={e => e.target.style.display = 'none'} />
                 </div>
                 <div style={prS.timeBody}>
@@ -79,10 +91,14 @@ const PromoPage = ({ onCatalog }) => {
         </div>
 
         {/* Business lunch detail */}
-        <div style={prS.bizSection}>
+        <div
+          className="max-md:!flex-col max-md:!p-6 max-md:!gap-6 max-md:!mt-9"
+          style={prS.bizSection}>
           <div style={prS.bizLeft}>
             <span style={prS.sectionLabel}>Ежедневно 12:00–15:00</span>
-            <h2 style={{ ...prS.sectionTitle, color: 'white', margin: '12px 0 16px' }}>Бизнес-ланч</h2>
+            <h2
+              className="max-md:!text-[26px]"
+              style={{ ...prS.sectionTitle, color: 'white', margin: '12px 0 16px' }}>Бизнес-ланч</h2>
             <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.65)', fontFamily: "'Outfit',sans-serif", lineHeight: 1.7, margin: '0 0 24px' }}>
               Идеально для занятых людей, которые ценят качество.
             </p>
@@ -106,8 +122,12 @@ const PromoPage = ({ onCatalog }) => {
               onMouseLeave={e => e.currentTarget.style.background = '#C4673A'}
             >Заказать бизнес-ланч</button>
           </div>
-          <div style={prS.bizRight}>
-            <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=700&h=600&fit=crop&q=85" alt="Бизнес-ланч" style={prS.bizImg} onError={e => e.target.style.display = 'none'} />
+          <div
+            className="max-md:!w-full"
+            style={prS.bizRight}>
+            <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=700&h=600&fit=crop&q=85" alt="Бизнес-ланч"
+              className="max-md:!h-[220px]"
+              style={prS.bizImg} onError={e => e.target.style.display = 'none'} />
             <div style={prS.bizBadge}>
               <div style={prS.bizBadgeNum}>290</div>
               <div style={prS.bizBadgeSub}>рублей</div>
@@ -116,11 +136,17 @@ const PromoPage = ({ onCatalog }) => {
         </div>
 
         {/* Loyalty */}
-        <div style={prS.loyalty}>
+        <div
+          className="max-md:!mt-9 max-md:!p-6"
+          style={prS.loyalty}>
           <span style={prS.sectionLabel}>Накопительная система</span>
-          <h2 style={{ ...prS.sectionTitle, marginBottom: 12 }}>Программа лояльности</h2>
+          <h2
+            className="max-md:!text-[24px]"
+            style={{ ...prS.sectionTitle, marginBottom: 12 }}>Программа лояльности</h2>
           <p style={prS.loyaltySub}>Копите баллы с каждым заказом и получайте скидки на следующие визиты</p>
-          <div style={prS.loyaltyGrid}>
+          <div
+            className="max-md:!grid-cols-2 max-md:!gap-3"
+            style={prS.loyaltyGrid}>
             {[
               { level: 'Гость', icon: '☕', from: '0 ₽', discount: '0%', color: 'white', border: '#E5E0D8', text: '#7A756E', numColor: '#1A2B1E', desc: 'Стандартное меню' },
               { level: 'Завсегдатай', icon: '🥗', from: '5 000 ₽', discount: '3%', color: '#E8F0E8', border: '#C8DFC8', text: '#2D6B3A', numColor: '#2D6B3A', desc: 'Скидка на следующий заказ' },
@@ -139,15 +165,22 @@ const PromoPage = ({ onCatalog }) => {
         </div>
 
         {/* Newsletter */}
-        <div style={prS.newsletter}>
-          <h2 style={{ ...prS.sectionTitle, color: 'white', margin: '0 0 8px' }}>Подпишитесь на акции</h2>
+        <div
+          className="max-md:!p-6"
+          style={prS.newsletter}>
+          <h2
+            className="max-md:!text-[22px]"
+            style={{ ...prS.sectionTitle, color: 'white', margin: '0 0 8px' }}>Подпишитесь на акции</h2>
           <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.55)', fontFamily: "'Outfit',sans-serif", margin: '0 0 24px' }}>
             Первыми узнавайте о новых предложениях и скидках
           </p>
           {subDone ? (
             <div style={{ color: '#E8A838', fontFamily: "'Outfit',sans-serif", fontWeight: 600, fontSize: 15 }}>✓ Вы подписаны! Спасибо.</div>
           ) : (
-            <form onSubmit={handleSub} style={{ display: 'flex', gap: 10, maxWidth: 440 }}>
+            <form
+              onSubmit={handleSub}
+              className="max-md:!flex-col"
+              style={{ display: 'flex', gap: 10, maxWidth: 440 }}>
               <input type="email" placeholder="Ваш email" value={email} onChange={e => setEmail(e.target.value)}
                 style={{ flex: 1, padding: '13px 16px', borderRadius: 12, border: 'none', fontSize: 14, fontFamily: "'Outfit',sans-serif", outline: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', caretColor: '#C4673A' }} />
               <button type="submit" style={{ background: '#C4673A', color: 'white', border: 'none', borderRadius: 12, padding: '13px 22px', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: "'Outfit',sans-serif", whiteSpace: 'nowrap' }}>
@@ -164,16 +197,25 @@ const PromoPage = ({ onCatalog }) => {
 const FeaturedPromo = ({ promo, onCatalog }) => {
   const [imgErr, setImgErr] = React.useState(false);
   return (
-    <div style={{ ...prS.featCard, background: promo.color, position: 'relative', overflow: 'hidden', borderRadius: 20, minHeight: 320 }}>
-      {!imgErr ? <img src={promo.photo} alt={promo.title} style={prS.featImg} onError={() => setImgErr(true)} />
+    <div
+      className="max-md:!min-h-[260px]"
+      style={{ ...prS.featCard, background: promo.color, position: 'relative', overflow: 'hidden', borderRadius: 20, minHeight: 320 }}>
+      {!imgErr ?
+        <img src={promo.photo} alt={promo.title} style={prS.featImg} onError={() => setImgErr(true)} />
         : <div style={{ background: promo.color, width: '100%', height: '100%' }} />}
       <div style={{ ...prS.featOverlay, background: `linear-gradient(to top, ${promo.color} 30%, rgba(0,0,0,0.2) 100%)` }} />
       <span style={prS.featBadge}>{promo.badge}</span>
-      <div style={prS.featContent}>
+      <div
+        className="max-md:!p-5"
+        style={prS.featContent}>
         <div style={prS.featMeta}>{promo.label}</div>
-        <h3 style={prS.featTitle}>{promo.title}</h3>
+        <h3
+          className="max-md:!text-[20px]"
+          style={prS.featTitle}>{promo.title}</h3>
         <p style={prS.featDesc}>{promo.desc}</p>
-        <div style={prS.featFooter}>
+        <div
+          className="max-md:!flex-wrap"
+          style={prS.featFooter}>
           {promo.price && <span style={prS.featPrice}>от {promo.price} ₽</span>}
           <button style={prS.featBtn} onClick={onCatalog}>Воспользоваться <ArrowRight size={14} /></button>
         </div>
@@ -189,8 +231,11 @@ const PromoCard = ({ promo, onCatalog }) => {
       onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(0,0,0,0.13)'; }}
       onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.07)'; }}
     >
-      <div style={prS.sideImgWrap}>
-        {!imgErr ? <img src={promo.photo} alt={promo.title} style={prS.sideImg} onError={() => setImgErr(true)} />
+      <div
+        className="max-md:!h-[120px]"
+        style={prS.sideImgWrap}>
+        {!imgErr ?
+          <img src={promo.photo} alt={promo.title} style={prS.sideImg} onError={() => setImgErr(true)} />
           : <div style={{ background: promo.color, width: '100%', height: '100%' }} />}
         <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(to top, ${promo.color} 20%, transparent 70%)` }} />
         <span style={prS.sideBadge}>{promo.badge}</span>
@@ -201,7 +246,7 @@ const PromoCard = ({ promo, onCatalog }) => {
       </div>
       <div style={prS.sideBody}>
         <p style={prS.sideDesc}>{promo.desc}</p>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
           <span style={prS.sideUntil}>До: {promo.until}</span>
           <button style={prS.sideBtn} onClick={onCatalog}>Подробнее <ArrowRight size={13} /></button>
         </div>
@@ -211,17 +256,25 @@ const PromoCard = ({ promo, onCatalog }) => {
 };
 
 const PromoBanner = ({ promo, onCatalog }) => (
-  <div style={prS.bannerWrap}>
-    <div style={prS.bannerLeft}>
+  <div
+    className="max-md:!flex-col"
+    style={prS.bannerWrap}>
+    <div
+      className="max-md:!p-6"
+      style={prS.bannerLeft}>
       <span style={prS.featBadge}>{promo.badge}</span>
-      <h3 style={{ ...prS.sectionTitle, color: 'white', margin: '12px 0 8px' }}>{promo.title}</h3>
+      <h3
+        className="max-md:!text-[24px]"
+        style={{ ...prS.sectionTitle, color: 'white', margin: '12px 0 8px' }}>{promo.title}</h3>
       <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.65)', fontFamily: "'Outfit',sans-serif", lineHeight: 1.65, margin: '0 0 20px' }}>{promo.desc}</p>
       <button style={prS.bizBtn} onClick={onCatalog}
         onMouseEnter={e => e.currentTarget.style.background = '#A8552E'}
         onMouseLeave={e => e.currentTarget.style.background = '#C4673A'}
       >Узнать больше</button>
     </div>
-    <div style={prS.bannerRight}>
+    <div
+      className="max-md:!w-full max-md:!h-[180px]"
+      style={prS.bannerRight}>
       <img src={promo.photo} alt={promo.title} style={prS.bannerImg} onError={e => e.target.style.display = 'none'} />
     </div>
   </div>
@@ -234,7 +287,7 @@ const prS = {
   heroLabel: { fontSize: 11, fontWeight: 700, letterSpacing: 2.5, textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', fontFamily: "'Outfit',sans-serif", display: 'block', marginBottom: 10 },
   heroTitle: { fontSize: 'clamp(28px,4vw,46px)', fontFamily: "'Cormorant Garamond',serif", color: 'white', margin: '0 0 10px', fontWeight: 700 },
   heroSub: { fontSize: 15, color: 'rgba(255,255,255,0.55)', margin: '0 0 24px', fontFamily: "'Outfit',sans-serif" },
-  heroStats: { display: 'flex', gap: 32 },
+  heroStats: { display: 'flex', gap: 32, flexWrap: 'wrap' },
   heroStat: { display: 'flex', flexDirection: 'column', gap: 2 },
   heroStatNum: { fontSize: 24, fontWeight: 700, color: '#E8A838', fontFamily: "'Cormorant Garamond',serif" },
   heroStatLbl: { fontSize: 12, color: 'rgba(255,255,255,0.45)', fontFamily: "'Outfit',sans-serif" },

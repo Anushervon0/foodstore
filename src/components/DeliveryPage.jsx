@@ -82,19 +82,25 @@ const DeliveryPage = () => {
 
    return (
       <main style={{background: "#F4F1EC", minHeight: "100vh", paddingBottom: 80}}>
-         <div style={dlS.hero}>
-            <div style={dlS.container}>
+         <div className="max-md:!py-8" style={dlS.hero}>
+            <div className="max-md:!px-4" style={dlS.container}>
                <span style={dlS.heroLabel}>Условия работы</span>
-               <h1 style={dlS.heroTitle}>Доставка и оплата</h1>
+               <h1 className="max-md:!text-[28px]" style={dlS.heroTitle}>Доставка и оплата</h1>
                <p style={dlS.heroSub}>Привезём горячее прямо к вам или приготовим к самовывозу</p>
             </div>
          </div>
 
-         <div style={dlS.container}>
-            <div style={{paddingTop: 40}}>
-               <div style={dlS.optionsGrid}>
+         <div className="max-md:!px-4" style={dlS.container}>
+            <div
+               className="max-md:!pt-6"
+               style={{paddingTop: 40}}>
+               <div
+                  className="max-md:!grid-cols-1 max-md:!gap-4"
+                  style={dlS.optionsGrid}>
                   {/* Delivery card */}
-                  <div style={dlS.optionCard}>
+                  <div
+                     className="max-md:!p-5"
+                     style={dlS.optionCard}>
                      <div style={dlS.optionTop}>
                         <div style={dlS.optionIconWrap}>
                            <svg
@@ -123,7 +129,9 @@ const DeliveryPage = () => {
                         ].map(([l, v]) => (
                            <div key={l} style={dlS.optionRow}>
                               <span style={dlS.optionRowLabel}>{l}</span>
-                              <span style={dlS.optionRowVal}>{v}</span>
+                              <span
+                                 className="max-md:!text-right max-md:!ml-3"
+                                 style={dlS.optionRowVal}>{v}</span>
                            </div>
                         ))}
                      </div>
@@ -131,7 +139,9 @@ const DeliveryPage = () => {
                   </div>
 
                   {/* Pickup card */}
-                  <div style={{...dlS.optionCard, background: "#1E3328"}}>
+                  <div
+                     className="max-md:!p-5"
+                     style={{...dlS.optionCard, background: "#1E3328"}}>
                      <div style={dlS.optionTop}>
                         <div style={{...dlS.optionIconWrap, background: "rgba(255,255,255,0.15)"}}>
                            <MapPinIcon size={28} />
@@ -147,7 +157,9 @@ const DeliveryPage = () => {
                         ].map(([l, v]) => (
                            <div key={l} style={{...dlS.optionRow, borderColor: "rgba(255,255,255,0.1)"}}>
                               <span style={{...dlS.optionRowLabel, color: "rgba(255,255,255,0.5)"}}>{l}</span>
-                              <span style={{...dlS.optionRowVal, color: "white"}}>{v}</span>
+                              <span
+                                 className="max-md:!text-right max-md:!ml-3"
+                                 style={{...dlS.optionRowVal, color: "white"}}>{v}</span>
                            </div>
                         ))}
                      </div>
@@ -159,10 +171,14 @@ const DeliveryPage = () => {
             </div>
 
             {/* Map */}
-            <div style={dlS.mapSection}>
+            <div
+               className="max-md:!mt-8"
+               style={dlS.mapSection}>
                <h2 style={dlS.sectionTitle}>Где мы находимся</h2>
                <div style={dlS.mapWrap}>
-                  <div style={dlS.mapPlaceholder}>
+                  <div
+                     className="max-md:!h-[200px]"
+                     style={dlS.mapPlaceholder}>
                      <MapPinIcon size={36} />
                      <p style={{color: "#7A756E", fontFamily: "'Outfit',sans-serif", fontSize: 15, margin: "12px 0 0"}}>ул. Германа Титова, 6</p>
                      <p style={{color: "#B0A898", fontFamily: "'Outfit',sans-serif", fontSize: 13, margin: "4px 0 0"}}>
@@ -173,9 +189,13 @@ const DeliveryPage = () => {
             </div>
 
             {/* Payment */}
-            <div style={dlS.paySection}>
+            <div
+               className="max-md:!mt-8"
+               style={dlS.paySection}>
                <h2 style={dlS.sectionTitle}>Способы оплаты</h2>
-               <div style={dlS.payGrid}>
+               <div
+                  className="max-md:!grid-cols-1 max-md:!gap-3"
+                  style={dlS.payGrid}>
                   {payMethods.map(m => (
                      <div key={m.label} style={dlS.payCard}>
                         <div style={dlS.payIcon}>{m.icon}</div>
@@ -189,12 +209,17 @@ const DeliveryPage = () => {
             </div>
 
             {/* FAQ */}
-            <div style={dlS.faqSection}>
+            <div
+               className="max-md:!mt-8"
+               style={dlS.faqSection}>
                <h2 style={dlS.sectionTitle}>Часто задаваемые вопросы</h2>
                <div style={dlS.faqList}>
                   {faqs.map((f, i) => (
                      <div key={i} style={dlS.faqItem}>
-                        <button style={dlS.faqQ} onClick={() => setOpenFaq(openFaq === i ? null : i)}>
+                        <button
+                           className="max-md:!text-[14px] max-md:!px-4 max-md:!py-4"
+                           style={dlS.faqQ}
+                           onClick={() => setOpenFaq(openFaq === i ? null : i)}>
                            <span>{f.q}</span>
                            <svg
                               width="18"
@@ -208,7 +233,11 @@ const DeliveryPage = () => {
                               <polyline points="6 9 12 15 18 9" />
                            </svg>
                         </button>
-                        {openFaq === i && <div style={dlS.faqA}>{f.a}</div>}
+                        {openFaq === i && (
+                           <div
+                              className="max-md:!px-4 max-md:!text-[13px]"
+                              style={dlS.faqA}>{f.a}</div>
+                        )}
                      </div>
                   ))}
                </div>

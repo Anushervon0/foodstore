@@ -1,7 +1,8 @@
 import React from 'react';
 import { ProductCard } from './ProductCard.jsx';
 import { CloseIcon } from './icons.jsx';
-import { CATEGORIES, MENU } from '../data/menu.js';
+import { CATEGORIES as CATEGORIES_FALLBACK } from '../data/menu.js';
+import { fetchProducts, fetchCategories } from '../api.js';
 
 export const plural = (n, [one, few, many]) => {
   const m10 = n % 10, m100 = n % 100;
@@ -11,12 +12,37 @@ export const plural = (n, [one, few, many]) => {
 };
 
 const CatalogPage = ({ onAdd, onOpen }) => {
+  const [menu, setMenu] = React.useState([]);
+  const [categories, setCategories] = React.useState(CATEGORIES_FALLBACK);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState(null);
+
   const [activeCat, setActiveCat] = React.useState('all');
   const [search, setSearch] = React.useState('');
   const [sort, setSort] = React.useState('popular');
 
+  React.useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        setLoading(true);
+        const [products, cats] = await Promise.all([fetchProducts(), fetchCategories()]);
+        if (cancelled) return;
+        setMenu(products);
+        if (cats && cats.length) setCategories(cats);
+        setError(null);
+      } catch (e) {
+        if (cancelled) return;
+        setError(e.message || 'Не удалось загрузить меню');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   const filtered = React.useMemo(() => {
-    let list = MENU.filter(item => {
+    let list = menu.filter(item => {
       const matchCat = activeCat === 'all' || item.cat === activeCat;
       const matchSearch = item.name.toLowerCase().includes(search.toLowerCase());
       return matchCat && matchSearch;
@@ -26,7 +52,7 @@ const CatalogPage = ({ onAdd, onOpen }) => {
     if (sort === 'rating') list = [...list].sort((a, b) => b.rating - a.rating);
     if (sort === 'popular') list = [...list].sort((a, b) => (b.popular ? 1 : 0) - (a.popular ? 1 : 0));
     return list;
-  }, [activeCat, search, sort]);
+  }, [menu, activeCat, search, sort]);
 
   return (
     <main style={{ background: '#F4F1EC', minHeight: '100vh', paddingBottom: 80 }}>
@@ -36,7 +62,7 @@ const CatalogPage = ({ onAdd, onOpen }) => {
             <div>
               <span style={catS.heroLabel}>Наше меню</span>
               <h1 style={catS.heroTitle}>Каталог блюд</h1>
-              <p style={catS.heroSub}>Свежее ежедневное меню · {MENU.length} позиций</p>
+              <p style={catS.heroSub}>Свежее ежедневное меню · {menu.length} позиций</p>
             </div>
             <div style={catS.searchWrap}>
               <svg style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
@@ -51,10 +77,10 @@ const CatalogPage = ({ onAdd, onOpen }) => {
         <div style={catS.filtersRow}>
           <div style={catS.tabs}>
             <button style={{ ...catS.tab, ...(activeCat === 'all' ? catS.tabActive : {}) }} onClick={() => setActiveCat('all')}>
-              Все <span style={{ ...catS.tabCount, ...(activeCat === 'all' ? { background: 'rgba(255,255,255,0.3)' } : {}) }}>{MENU.length}</span>
+              Все <span style={{ ...catS.tabCount, ...(activeCat === 'all' ? { background: 'rgba(255,255,255,0.3)' } : {}) }}>{menu.length}</span>
             </button>
-            {CATEGORIES.map(cat => {
-              const cnt = MENU.filter(m => m.cat === cat.id).length;
+            {categories.map(cat => {
+              const cnt = menu.filter(m => m.cat === cat.id).length;
               return (
                 <button key={cat.id} style={{ ...catS.tab, ...(activeCat === cat.id ? catS.tabActive : {}) }} onClick={() => setActiveCat(cat.id)}>
                   {cat.label} <span style={{ ...catS.tabCount, ...(activeCat === cat.id ? { background: 'rgba(255,255,255,0.3)' } : {}) }}>{cnt}</span>
@@ -73,7 +99,19 @@ const CatalogPage = ({ onAdd, onOpen }) => {
           </div>
         </div>
 
-        {filtered.length === 0 ? (
+        {error ? (
+          <div style={catS.empty}>
+            <div style={catS.emptyIco}>
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#C0B8B0" strokeWidth="1.5" strokeLinecap="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+            </div>
+            <h3 style={catS.emptyTitle}>Не удалось загрузить меню</h3>
+            <p style={catS.emptyText}>{error}</p>
+          </div>
+        ) : loading ? (
+          <div style={catS.empty}>
+            <h3 style={catS.emptyTitle}>Загрузка меню…</h3>
+          </div>
+        ) : filtered.length === 0 ? (
           <div style={catS.empty}>
             <div style={catS.emptyIco}>
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#C0B8B0" strokeWidth="1.5" strokeLinecap="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
